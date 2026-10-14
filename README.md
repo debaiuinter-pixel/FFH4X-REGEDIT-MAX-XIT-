@@ -1,566 +1,359 @@
 --[[
-    VERSÃO ULTRA-LEVE PARA DELTA EXECUTOR
-    ALTERAÇÃO: Painel horizontal (deitado) + Título da Hitbox encurtado
+    JOGO: FREE FIRE MAX 🏆
+    PAINEL: FFH4X REGEDIT FF
+    LINGUAGEM: LUAU
+    USO: Roblox Studio / ambiente de testes autorizado
+    DESIGN: Painel Verde em pé, esticado, com barra de categorias
+    OPÇÕES: Hitbox e ESP (com nome e distância juntos)
 ]]
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
 
 local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
--- Variáveis
 local HitboxEnabled = false
 local ESPEnabled = false
-local InfJumpEnabled = false
-local SpinningEnabled = false
-local SpeedEnabled = false
-local CurrentSpeed = 16
-local SpinAngle = 0
-local SPIN_SPEED = 720
 
--- ==========================================
--- 1. CRIA A INTERFACE PRIMEIRO
--- ==========================================
+-- Interface
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "PainelDeltaLeve"
+ScreenGui.Name = "FFH4X_REGEDIT_FF"
 ScreenGui.ResetOnSpawn = false
-ScreenGui.IgnoreGuiInset = true
-ScreenGui.DisplayOrder = 999
-ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.Parent = PlayerGui
 
--- Botão de Abrir
-local OpenBtn = Instance.new("TextButton")
-OpenBtn.Size = UDim2.fromOffset(55, 55)
-OpenBtn.Position = UDim2.new(0.5, -27, 0.5, -27)
-OpenBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-OpenBtn.Text = ""
-OpenBtn.Active = true
-OpenBtn.Draggable = true
-OpenBtn.Parent = ScreenGui
-OpenBtn.Visible = true
-
-local OpenBtnCorner = Instance.new("UICorner")
-OpenBtnCorner.CornerRadius = UDim.new(0, 10)
-OpenBtnCorner.Parent = OpenBtn
-
--- Emoji de Caveira
-local SkullEmoji = Instance.new("TextLabel")
-SkullEmoji.Size = UDim2.new(1, 0, 0, 30)
-SkullEmoji.Position = UDim2.new(0, 0, 0, 2)
-SkullEmoji.BackgroundTransparency = 1
-SkullEmoji.Text = "💀"
-SkullEmoji.TextColor3 = Color3.fromRGB(255, 255, 255)
-SkullEmoji.Font = Enum.Font.GothamBlack
-SkullEmoji.TextSize = 24
-SkullEmoji.Parent = OpenBtn
-
--- Nome FFH4X
-local NomeFF = Instance.new("TextLabel")
-NomeFF.Size = UDim2.new(0.5, 0, 0, 16)
-NomeFF.Position = UDim2.new(0, 0, 1, -18)
-NomeFF.BackgroundTransparency = 1
-NomeFF.Text = "FF"
-NomeFF.TextColor3 = Color3.fromRGB(255, 0, 0)
-NomeFF.Font = Enum.Font.GothamBlack
-NomeFF.TextSize = 14
-NomeFF.TextXAlignment = Enum.TextXAlignment.Right
-NomeFF.Parent = OpenBtn
-
-local NomeH4X = Instance.new("TextLabel")
-NomeH4X.Size = UDim2.new(0.5, 0, 0, 16)
-NomeH4X.Position = UDim2.new(0.5, 0, 1, -18)
-NomeH4X.BackgroundTransparency = 1
-NomeH4X.Text = "H4X"
-NomeH4X.TextColor3 = Color3.fromRGB(255, 255, 255)
-NomeH4X.Font = Enum.Font.GothamBlack
-NomeH4X.TextSize = 14
-NomeH4X.TextXAlignment = Enum.TextXAlignment.Left
-NomeH4X.Parent = OpenBtn
-
--- Painel Principal (HORIZONTAL - DEITADO)
 local Main = Instance.new("Frame")
-Main.Size = UDim2.fromOffset(520, 260)
-Main.Position = UDim2.new(0.5, -260, 0.5, -130)
-Main.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-Main.BorderSizePixel = 2
-Main.BorderColor3 = Color3.fromRGB(200, 0, 0)
+Main.Name = "MainPanel"
+Main.Size = UDim2.fromOffset(320, 330) 
+Main.Position = UDim2.new(0.5, -160, 0.5, -165)
+Main.BackgroundColor3 = Color3.fromRGB(18, 20, 28)
+Main.BorderSizePixel = 0
 Main.Active = true
 Main.Draggable = true
 Main.Parent = ScreenGui
-Main.Visible = false
 
--- Barra Vermelha do Topo
-local TopBar = Instance.new("Frame")
-TopBar.Size = UDim2.new(1, 0, 0, 30)
-TopBar.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-TopBar.BorderSizePixel = 0
-TopBar.Parent = Main
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 14)
+MainCorner.Parent = Main
 
--- Título
-local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, 0, 0, 30)
-Title.BackgroundTransparency = 1
-Title.Text = "PAINEL FREESTYLE"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 16
-Title.Parent = TopBar
+local Stroke = Instance.new("UIStroke")
+Stroke.Color = Color3.fromRGB(0, 200, 0) 
+Stroke.Thickness = 1.5
+Stroke.Parent = Main
 
--- Botão de Fechar (X do Painel)
-local CloseBtn = Instance.new("TextButton")
-CloseBtn.Size = UDim2.fromOffset(30, 30)
-CloseBtn.Position = UDim2.new(1, -35, 0, 0)
-CloseBtn.BackgroundTransparency = 1
-CloseBtn.Text = "X"
-CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseBtn.Font = Enum.Font.GothamBold
-CloseBtn.TextSize = 18
-CloseBtn.Parent = TopBar
+-- Cabeçalho (Topo)
+local Header = Instance.new("Frame")
+Header.Size = UDim2.new(1, 0, 0, 82)
+Header.BackgroundColor3 = Color3.fromRGB(29, 32, 43)
+Header.BorderSizePixel = 0
+Header.Parent = Main
 
--- ==========================================
--- 2. LAYOUT HORIZONTAL
--- ==========================================
+local HeaderCorner = Instance.new("UICorner")
+HeaderCorner.CornerRadius = UDim.new(0, 14)
+HeaderCorner.Parent = Header
 
--- Coluna Esquerda (Categoria "Início")
-local LeftColumn = Instance.new("Frame")
-LeftColumn.Size = UDim2.new(0, 100, 1, -70)
-LeftColumn.Position = UDim2.fromOffset(5, 35)
-LeftColumn.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-LeftColumn.BorderSizePixel = 0
-LeftColumn.Parent = Main
+local GameName = Instance.new("TextLabel")
+GameName.Size = UDim2.new(1, -20, 0, 28)
+GameName.Position = UDim2.fromOffset(10, 7)
+GameName.BackgroundTransparency = 1
+GameName.Text = "FREE FIRE MAX 🏆"
+GameName.TextColor3 = Color3.fromRGB(255, 145, 45)
+GameName.Font = Enum.Font.GothamBlack
+GameName.TextSize = 20
+GameName.Parent = Header
 
-local LeftCorner = Instance.new("UICorner")
-LeftCorner.CornerRadius = UDim.new(0, 6)
-LeftCorner.Parent = LeftColumn
+local PanelName = Instance.new("TextLabel")
+PanelName.Size = UDim2.new(1, -20, 0, 22)
+PanelName.Position = UDim2.fromOffset(10, 38)
+PanelName.BackgroundTransparency = 1
+PanelName.Text = "FFH4X REGEDIT FF"
+PanelName.TextColor3 = Color3.fromRGB(240, 240, 245)
+PanelName.Font = Enum.Font.GothamBold
+PanelName.TextSize = 15
+PanelName.Parent = Header
 
-local BtnInicio = Instance.new("TextButton")
-BtnInicio.Size = UDim2.new(1, -10, 0, 35)
-BtnInicio.Position = UDim2.fromOffset(5, 5)
-BtnInicio.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-BtnInicio.Text = "Início"
-BtnInicio.TextColor3 = Color3.fromRGB(255, 255, 255)
-BtnInicio.Font = Enum.Font.GothamBold
-BtnInicio.TextSize = 13
-BtnInicio.Parent = LeftColumn
+local Subtitle = Instance.new("TextLabel")
+Subtitle.Size = UDim2.new(1, -20, 0, 15)
+Subtitle.Position = UDim2.fromOffset(10, 61)
+Subtitle.BackgroundTransparency = 1
+Subtitle.Text = "PAINEL DE TESTES • LUAU"
+Subtitle.TextColor3 = Color3.fromRGB(155, 160, 175)
+Subtitle.Font = Enum.Font.Gotham
+Subtitle.TextSize = 10
+Subtitle.Parent = Header
 
-local BtnInicioCorner = Instance.new("UICorner")
-BtnInicioCorner.CornerRadius = UDim.new(0, 6)
-BtnInicioCorner.Parent = BtnInicio
+-- Barra de Categorias (Abas)
+local TabBar = Instance.new("Frame")
+TabBar.Size = UDim2.new(1, -20, 0, 30)
+TabBar.Position = UDim2.fromOffset(10, 95)
+TabBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+TabBar.BorderSizePixel = 0
+TabBar.Parent = Main
 
-local TextoAviso = Instance.new("TextLabel")
-TextoAviso.Size = UDim2.new(1, -10, 0, 40)
-TextoAviso.Position = UDim2.fromOffset(5, 50)
-TextoAviso.BackgroundTransparency = 1
-TextoAviso.Text = "Mais opções irão chegar!"
-TextoAviso.TextColor3 = Color3.fromRGB(200, 200, 200)
-TextoAviso.Font = Enum.Font.GothamSemibold
-TextoAviso.TextSize = 10
-TextoAviso.TextWrapped = true
-TextoAviso.Parent = LeftColumn
+local TabCorner = Instance.new("UICorner")
+TabCorner.CornerRadius = UDim.new(0, 6)
+TabCorner.Parent = TabBar
 
--- Coluna Central (Opções 1, 2, 3)
-local CenterColumn = Instance.new("Frame")
-CenterColumn.Size = UDim2.new(0, 205, 1, -70)
-CenterColumn.Position = UDim2.new(0, 110, 0, 35)
-CenterColumn.BackgroundTransparency = 1
-CenterColumn.Parent = Main
+local tabBtnPrincipal = Instance.new("TextButton")
+tabBtnPrincipal.Size = UDim2.new(0, 75, 1, -4)
+tabBtnPrincipal.Position = UDim2.new(0, 2, 0, 2)
+tabBtnPrincipal.BackgroundColor3 = Color3.fromRGB(0, 180, 0)
+tabBtnPrincipal.BorderSizePixel = 0
+tabBtnPrincipal.Text = "Principal"
+tabBtnPrincipal.TextColor3 = Color3.fromRGB(255, 255, 255)
+tabBtnPrincipal.Font = Enum.Font.GothamBold
+tabBtnPrincipal.TextSize = 10
+tabBtnPrincipal.Parent = TabBar
 
--- Coluna Direita (Opções 4, 5)
-local RightColumn = Instance.new("Frame")
-RightColumn.Size = UDim2.new(0, 200, 1, -70)
-RightColumn.Position = UDim2.new(0, 320, 0, 35)
-RightColumn.BackgroundTransparency = 1
-RightColumn.Parent = Main
+local tCornerPrincipal = Instance.new("UICorner")
+tCornerPrincipal.CornerRadius = UDim.new(0, 4)
+tCornerPrincipal.Parent = tabBtnPrincipal
 
--- ==========================================
--- 3. LÓGICA DOS BOTÕES
--- ==========================================
+local tabTextInfo = Instance.new("TextLabel")
+tabTextInfo.Size = UDim2.new(1, -85, 1, -4)
+tabTextInfo.Position = UDim2.new(0, 80, 0, 2)
+tabTextInfo.BackgroundTransparency = 1
+tabTextInfo.Text = "mais opções chegaram"
+tabTextInfo.TextColor3 = Color3.fromRGB(200, 200, 200)
+tabTextInfo.Font = Enum.Font.GothamSemibold
+tabTextInfo.TextSize = 10
+tabTextInfo.TextXAlignment = Enum.TextXAlignment.Left
+tabTextInfo.Parent = TabBar
 
-local function CriarBotao(texto, parente, posY, callback)
-    local Btn = Instance.new("TextButton")
-    Btn.Size = UDim2.new(1, -10, 0, 40)
-    Btn.Position = UDim2.fromOffset(5, posY)
-    Btn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    Btn.Text = texto .. " [OFF]"
-    Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Btn.Font = Enum.Font.GothamSemibold
-    Btn.TextSize = 12
-    Btn.Parent = parente
+-- Área de Opções
+local OptionsFrame = Instance.new("Frame")
+OptionsFrame.Size = UDim2.new(1, -20, 0, 120) 
+OptionsFrame.Position = UDim2.fromOffset(10, 135)
+OptionsFrame.BackgroundTransparency = 1
+OptionsFrame.Parent = Main
 
-    local BtnCorner = Instance.new("UICorner")
-    BtnCorner.CornerRadius = UDim.new(0, 6)
-    BtnCorner.Parent = Btn
-    
-    local ativo = false
-    Btn.MouseButton1Click:Connect(function()
-        ativo = not ativo
-        if ativo then
-            Btn.Text = texto .. " [ON]"
-            Btn.TextColor3 = Color3.fromRGB(0, 255, 0)
-        else
-            Btn.Text = texto .. " [OFF]"
-            Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        end
-        callback(ativo)
+-- Criador de botões
+local function CreateToggle(text, positionY, initialState, callback)
+    local Button = Instance.new("TextButton")
+    Button.Size = UDim2.new(1, 0, 0, 50)
+    Button.Position = UDim2.fromOffset(0, positionY)
+    Button.BackgroundColor3 = Color3.fromRGB(39, 43, 56)
+    Button.BorderSizePixel = 0
+    Button.AutoButtonColor = true
+    Button.Font = Enum.Font.GothamSemibold
+    Button.TextSize = 14
+    Button.TextColor3 = Color3.fromRGB(245, 245, 250)
+    Button.Parent = OptionsFrame
+
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 8)
+    Corner.Parent = Button
+
+    local enabled = initialState
+
+    local function Update()
+        Button.Text = text .. "   [" .. (enabled and "ON" or "OFF") .. "]"
+        Button.BackgroundColor3 = enabled
+            and Color3.fromRGB(0, 150, 0)
+            or Color3.fromRGB(39, 43, 56)
+    end
+
+    Button.Activated:Connect(function()
+        enabled = not enabled
+        Update()
+        callback(enabled)
     end)
-    return Btn
+
+    Update()
+    return Button
 end
 
--- Função central para aplicar Hitbox
-local function AplicarEfeitos(p)
-    if p == LocalPlayer then return end
-    local char = p.Character
+-- Lógica de Hitbox
+local OriginalSizes = {}
+
+local function ApplyHitbox(player)
+    if player == LocalPlayer then return end
+    local char = player.Character
     if not char then return end
     local hrp = char:FindFirstChild("HumanoidRootPart")
-    
     if hrp then
-        if HitboxEnabled then
-            hrp.Size = Vector3.new(21, 21, 21)
-            hrp.CanCollide = false
-            if ESPEnabled then
-                hrp.Transparency = 1
-            else
-                hrp.Transparency = 0.5
-            end
-        else
-            hrp.Size = Vector3.new(2, 2, 1)
-            hrp.CanCollide = true
-            hrp.Transparency = 1
+        if not OriginalSizes[player] then
+            OriginalSizes[player] = hrp.Size
         end
+        hrp.Size = Vector3.new(15, 15, 15)
+        hrp.CanCollide = false
+        hrp.Transparency = 0.5
     end
 end
 
--- 1. Hitbox (TÍTULO ENCURTADO)
-CriarBotao("HitBox (Com Expansão Invisível)", CenterColumn, 5, function(state)
+local function RemoveHitbox(player)
+    local char = player.Character
+    if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        if OriginalSizes[player] then
+            hrp.Size = OriginalSizes[player]
+            OriginalSizes[player] = nil
+        else
+            hrp.Size = Vector3.new(2, 2, 1)
+        end
+        hrp.CanCollide = true
+        hrp.Transparency = 1
+    end
+end
+
+-- Opção 1: HITBOX
+CreateToggle("HITBOX EXPANDER • 15", 0, false, function(state)
     HitboxEnabled = state
-    for _, p in ipairs(Players:GetPlayers()) do
-        AplicarEfeitos(p)
+    for _, player in ipairs(Players:GetPlayers()) do
+        if state then
+            ApplyHitbox(player)
+        else
+            RemoveHitbox(player)
+        end
     end
 end)
 
--- 2. ESP
-CriarBotao("ESP", CenterColumn, 50, function(state)
+-- Opção 2: ESP (nome e distância juntos)
+CreateToggle("ESP / BOX + NOME + DISTÂNCIA", 60, false, function(state)
     ESPEnabled = state
-    for _, p in ipairs(Players:GetPlayers()) do
-        AplicarEfeitos(p)
-    end
 end)
 
--- 3. Speed
-local SpeedFrame = Instance.new("Frame")
-SpeedFrame.Size = UDim2.new(1, -10, 0, 40)
-SpeedFrame.Position = UDim2.fromOffset(5, 95)
-SpeedFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-SpeedFrame.Parent = CenterColumn
+-- Botão de Fechar Painel
+local CloseButtonPanel = Instance.new("TextButton")
+CloseButtonPanel.Size = UDim2.new(1, -28, 0, 32)
+CloseButtonPanel.Position = UDim2.fromOffset(14, 285) 
+CloseButtonPanel.BackgroundColor3 = Color3.fromRGB(115, 43, 43)
+CloseButtonPanel.Text = "FECHAR PAINEL"
+CloseButtonPanel.TextColor3 = Color3.new(1, 1, 1)
+CloseButtonPanel.Font = Enum.Font.GothamBold
+CloseButtonPanel.TextSize = 12
+CloseButtonPanel.Parent = Main
 
-local SpeedCorner = Instance.new("UICorner")
-SpeedCorner.CornerRadius = UDim.new(0, 6)
-SpeedCorner.Parent = SpeedFrame
+local CloseCornerPanel = Instance.new("UICorner")
+CloseCornerPanel.CornerRadius = UDim.new(0, 8)
+CloseCornerPanel.Parent = CloseButtonPanel
 
-local SpeedBtn = Instance.new("TextButton")
-SpeedBtn.Size = UDim2.new(0, 130, 1, 0)
-SpeedBtn.BackgroundTransparency = 1
-SpeedBtn.Text = "Speed (Com \"Fake lag\") [OFF]"
-SpeedBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-SpeedBtn.Font = Enum.Font.GothamSemibold
-SpeedBtn.TextSize = 10
-SpeedBtn.Parent = SpeedFrame
-
-local SpeedInput = Instance.new("TextBox")
-SpeedInput.Size = UDim2.new(0, 55, 0, 28)
-SpeedInput.Position = UDim2.new(1, -60, 0.5, -14)
-SpeedInput.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-SpeedInput.TextColor3 = Color3.fromRGB(0, 255, 0)
-SpeedInput.Text = "16"
-SpeedInput.Font = Enum.Font.GothamBold
-SpeedInput.TextSize = 12
-SpeedInput.Parent = SpeedFrame
-
-SpeedInput.FocusLost:Connect(function()
-    local val = tonumber(SpeedInput.Text)
-    if val then
-        val = math.clamp(val, 16, 130)
-        SpeedInput.Text = tostring(val)
-        CurrentSpeed = val
-        if SpeedEnabled then
-            local char = LocalPlayer.Character
-            if char then
-                local hum = char:FindFirstChildOfClass("Humanoid")
-                if hum then hum.WalkSpeed = CurrentSpeed end
-            end
-        end
-    else
-        SpeedInput.Text = "16"
-        CurrentSpeed = 16
-    end
-end)
-
-SpeedBtn.MouseButton1Click:Connect(function()
-    SpeedEnabled = not SpeedEnabled
-    if SpeedEnabled then
-        SpeedBtn.Text = "Speed (Com \"Fake lag\") [ON]"
-        SpeedBtn.TextColor3 = Color3.fromRGB(0, 255, 0)
-        local char = LocalPlayer.Character
-        if char then
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            if hum then hum.WalkSpeed = CurrentSpeed end
-        end
-    else
-        SpeedBtn.Text = "Speed (Com \"Fake lag\") [OFF]"
-        SpeedBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        local char = LocalPlayer.Character
-        if char then
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            if hum then hum.WalkSpeed = 16 end
-        end
-    end
-end)
-
--- 4. Infinity Jump (Vai para a coluna da direita)
-CriarBotao("Infinity Jump", RightColumn, 5, function(state)
-    InfJumpEnabled = state
-end)
-
--- 5. Movimentação Giratória (Vai para a coluna da direita)
-CriarBotao("Mov. Giratória (Spin)", RightColumn, 50, function(state)
-    SpinningEnabled = state
-    if not state then
-        local char = LocalPlayer.Character
-        if char then
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            if hum then hum.AutoRotate = true end
-        end
-    end
-end)
-
--- Botão de Fechar Painel (Embaixo, ocupando toda a largura)
-local ClosePanelBtn = Instance.new("TextButton")
-ClosePanelBtn.Size = UDim2.new(1, -20, 0, 30)
-ClosePanelBtn.Position = UDim2.new(0, 10, 1, -35)
-ClosePanelBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-ClosePanelBtn.Text = "FECHAR PAINEL"
-ClosePanelBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-ClosePanelBtn.Font = Enum.Font.GothamBold
-ClosePanelBtn.TextSize = 12
-ClosePanelBtn.Parent = Main
-
-local ClosePanelCorner = Instance.new("UICorner")
-ClosePanelCorner.CornerRadius = UDim.new(0, 6)
-ClosePanelCorner.Parent = ClosePanelBtn
-
-CloseBtn.MouseButton1Click:Connect(function()
-    Main.Visible = false
-    OpenBtn.Visible = true
-end)
-
-ClosePanelBtn.MouseButton1Click:Connect(function()
+CloseButtonPanel.Activated:Connect(function()
     ScreenGui:Destroy()
 end)
 
-OpenBtn.MouseButton1Click:Connect(function()
-    OpenBtn.Visible = false
-    Main.Visible = true
-end)
-
--- ==========================================
--- 4. LÓGICA DO JOGO (LEVE)
--- ==========================================
-
-UserInputService.JumpRequest:Connect(function()
-    if InfJumpEnabled then
-        local char = LocalPlayer.Character
-        if char then
-            local hrp = char:FindFirstChild("HumanoidRootPart")
-            if hrp then
-                hrp.AssemblyLinearVelocity = Vector3.new(hrp.AssemblyLinearVelocity.X, 60, hrp.AssemblyLinearVelocity.Z)
-            end
-        end
-    end
-end)
-
-task.spawn(function()
-    while task.wait(0.5) do
-        if SpeedEnabled then
-            local char = LocalPlayer.Character
-            if char then
-                local hum = char:FindFirstChildOfClass("Humanoid")
-                if hum and hum.WalkSpeed ~= CurrentSpeed then
-                    hum.WalkSpeed = CurrentSpeed
-                end
-            end
-        end
-    end
-end)
-
--- ESP (Atualiza a cada 0.1s para não pesar)
+-- ESP de depuração (corpo + nome + distância)
 local Tracked = {}
 
-local function SetupESP(p)
-    if p == LocalPlayer or Tracked[p] then return end
-    local char = p.Character
-    if not char then return end
-    local head = char:FindFirstChild("Head")
+local function RemoveESP(player)
+    local data = Tracked[player]
+    if not data then return end
+
+    if data.Highlight then data.Highlight:Destroy() end
+    if data.Billboard then data.Billboard:Destroy() end
+
+    Tracked[player] = nil
+end
+
+local function SetupESP(player)
+    if player == LocalPlayer or Tracked[player] then return end
+
+    local character = player.Character
+    if not character then return end
+
+    local head = character:FindFirstChild("Head")
     if not head then return end
-    
-    local hl = Instance.new("Highlight")
-    hl.Adornee = char
-    hl.FillTransparency = 0.3
-    hl.OutlineTransparency = 1
-    hl.FillColor = Color3.fromRGB(255, 255, 255)
-    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-    hl.Enabled = false
-    hl.Parent = char
-    
-    local bb = Instance.new("BillboardGui")
-    bb.Adornee = head
-    bb.Size = UDim2.fromOffset(190, 55)
-    bb.StudsOffset = Vector3.new(0, 3.5, 0)
-    bb.AlwaysOnTop = true
-    bb.Enabled = false
-    bb.Parent = ScreenGui
-    
-    local txt = Instance.new("TextLabel")
-    txt.Name = "NameLabel"
-    txt.Size = UDim2.new(1, 0, 0, 20)
-    txt.Position = UDim2.new(0, 0, 0, 0)
-    txt.BackgroundTransparency = 1
-    txt.TextColor3 = Color3.fromRGB(255, 255, 255)
-    txt.TextStrokeTransparency = 0.3
-    txt.Font = Enum.Font.GothamBold
-    txt.TextSize = 12
-    txt.Parent = bb
 
-    local hpBarBg = Instance.new("Frame")
-    hpBarBg.Name = "HPBarBg"
-    hpBarBg.Size = UDim2.new(0, 100, 0, 6)
-    hpBarBg.Position = UDim2.new(0.5, -50, 0, 22)
-    hpBarBg.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    hpBarBg.BorderSizePixel = 0
-    hpBarBg.Parent = bb
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "FFH4X_DebugHighlight"
+    highlight.Adornee = character
+    highlight.FillTransparency = 0.3
+    highlight.OutlineTransparency = 1
+    highlight.FillColor = Color3.fromRGB(0, 255, 0)
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    highlight.Enabled = false
+    highlight.Parent = character
 
-    local hpBarFill = Instance.new("Frame")
-    hpBarFill.Name = "HPBarFill"
-    hpBarFill.Size = UDim2.new(1, 0, 1, 0)
-    hpBarFill.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-    hpBarFill.BorderSizePixel = 0
-    hpBarFill.Parent = hpBarBg
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "FFH4X_DebugLabel"
+    billboard.Adornee = head
+    billboard.Size = UDim2.fromOffset(190, 35)
+    billboard.StudsOffset = Vector3.new(0, 2.5, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Enabled = false
+    billboard.Parent = PlayerGui
 
-    local hpText = Instance.new("TextLabel")
-    hpText.Name = "HPText"
-    hpText.Size = UDim2.new(1, 0, 0, 14)
-    hpText.Position = UDim2.new(0, 0, 0, 30)
-    hpText.BackgroundTransparency = 1
-    hpText.TextColor3 = Color3.fromRGB(255, 255, 255)
-    hpText.TextStrokeTransparency = 0.3
-    hpText.Font = Enum.Font.GothamBold
-    hpText.TextSize = 11
-    hpText.Parent = bb
-    
-    Tracked[p] = {Highlight = hl, Billboard = bb, Label = txt, HPBar = hpBarFill, HPText = hpText}
+    local label = Instance.new("TextLabel")
+    label.Name = "Info"
+    label.Size = UDim2.fromScale(1, 1)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.fromRGB(0, 255, 0)
+    label.TextStrokeTransparency = 0.3
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 12
+    label.Parent = billboard
+
+    Tracked[player] = {
+        Highlight = highlight,
+        Billboard = billboard,
+        Label = label
+    }
 end
 
-local function RemoveESP(p)
-    if Tracked[p] then
-        Tracked[p].Highlight:Destroy()
-        Tracked[p].Billboard:Destroy()
-        Tracked[p] = nil
+local function UpdateESP(player)
+    local data = Tracked[player]
+    if not data then return end
+
+    local character = player.Character
+    local head = character and character:FindFirstChild("Head")
+    local root = character and character:FindFirstChild("HumanoidRootPart")
+
+    local myCharacter = LocalPlayer.Character
+    local myRoot = myCharacter and myCharacter:FindFirstChild("HumanoidRootPart")
+
+    local enabled = ESPEnabled and root ~= nil and head ~= nil
+
+    data.Highlight.Enabled = enabled
+    data.Billboard.Enabled = enabled
+
+    if not enabled then return end
+
+    if HitboxEnabled and root then
+        root.Transparency = 1
+    end
+
+    local parts = {}
+    table.insert(parts, player.DisplayName)
+
+    if myRoot then
+        local distance = (root.Position - myRoot.Position).Magnitude
+        table.insert(parts, string.format("%d De Distância", distance))
+    end
+
+    data.Label.Text = table.concat(parts, " | ")
+end
+
+local function TrackPlayer(player)
+    player.CharacterAdded:Connect(function()
+        task.wait(1)
+        RemoveESP(player)
+        SetupESP(player)
+        
+        if HitboxEnabled then
+            ApplyHitbox(player)
+        end
+    end)
+
+    if player.Character then
+        SetupESP(player)
     end
 end
 
-task.spawn(function()
-    while task.wait(1) do
-        for _, p in ipairs(Players:GetPlayers()) do
-            if p ~= LocalPlayer then
-                local char = p.Character
-                if char and HitboxEnabled then
-                    AplicarEfeitos(p)
-                end
-                if char then
-                    local hasHighlight = char:FindFirstChildOfClass("Highlight")
-                    if not hasHighlight and not Tracked[p] then
-                        SetupESP(p)
-                    end
-                else
-                    if Tracked[p] then
-                        RemoveESP(p)
-                    end
-                end
-            end
-        end
+for _, player in Players:GetPlayers() do
+    TrackPlayer(player)
+end
+
+Players.PlayerAdded:Connect(TrackPlayer)
+Players.PlayerRemoving:Connect(function(player)
+    RemoveESP(player)
+    OriginalSizes[player] = nil
+end)
+
+RunService.RenderStepped:Connect(function()
+    for player in pairs(Tracked) do
+        UpdateESP(player)
     end
 end)
 
-task.spawn(function()
-    while task.wait(0.1) do
-        for p, data in pairs(Tracked) do
-            local char = p.Character
-            local head = char and char:FindFirstChild("Head")
-            local root = char and char:FindFirstChild("HumanoidRootPart")
-            local hum = char and char:FindFirstChildOfClass("Humanoid")
-            local myChar = LocalPlayer.Character
-            local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
-            
-            local enabled = ESPEnabled and root and head and hum
-            data.Highlight.Enabled = enabled
-            data.Billboard.Enabled = enabled
-            
-            if enabled then
-                if HitboxEnabled and root then
-                    root.Transparency = 1
-                end
-                
-                local hue = tick() % 1
-                local color = Color3.fromHSV(hue, 1, 1)
-                data.Highlight.FillColor = color
-                data.Label.TextColor3 = color
-                
-                local dist = myRoot and (root.Position - myRoot.Position).Magnitude or 0
-                data.Label.Text = p.DisplayName .. " | " .. math.floor(dist) .. " De Distância"
-                
-                local health = hum.Health
-                local maxHealth = hum.MaxHealth
-                local percent = math.clamp(health / maxHealth, 0, 1)
-                
-                data.HPBar.Size = UDim2.new(percent, 0, 1, 0)
-                data.HPText.Text = math.floor(health) .. " / " .. math.floor(maxHealth)
-                
-                if percent > 0.75 then
-                    data.HPBar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-                elseif percent > 0.50 then
-                    data.HPBar.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
-                elseif percent > 0.29 then
-                    data.HPBar.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
-                elseif percent > 0 then
-                    data.HPBar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-                else
-                    data.HPBar.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-                end
-            end
-        end
-    end
-end)
-
-RunService.RenderStepped:Connect(function(dt)
-    if SpinningEnabled then
-        local char = LocalPlayer.Character
-        if char then
-            local hrp = char:FindFirstChild("HumanoidRootPart")
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            if hrp and hum then
-                if hum.MoveDirection.Magnitude > 0 then
-                    hum.AutoRotate = false
-                    SpinAngle = SpinAngle + (SPIN_SPEED * dt)
-                    local moveDir = hum.MoveDirection
-                    local baseCFrame = CFrame.lookAt(hrp.Position, hrp.Position + moveDir)
-                    hrp.CFrame = baseCFrame * CFrame.Angles(0, math.rad(SpinAngle), 0)
-                else
-                    hum.AutoRotate = true
-                    SpinAngle = 0
-                end
-            end
-        end
-    end
-end)
-
-print("Painel Ultra-Leve carregado com sucesso no Delta! - Painel horizontal + Hitbox encurtada")
+print("FREE FIRE MAX 🏆 | FFH4X REGEDIT FF carregado! - Painel Verde em pé")
